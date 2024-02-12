@@ -55,3 +55,9 @@ class CategoryListView(APIView):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+class ItemListView(APIView):
+    def get(self, request):
+        items = Item.objects.all()
+        serializer = ItemSerializer(items, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
