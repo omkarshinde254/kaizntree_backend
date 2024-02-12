@@ -28,13 +28,13 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        email = request.data['email']
-        password = request.data['password']
+        email = request.data.get('email')
+        password = request.data.get('password')
 
         user = User.objects.filter(email=email).first()
 
         if user is None or not user.check_password(password):
-            return Response({'message': 'Authentication failed, Incorrect username or password'}, status=status.HTTP_401_UNAUTHORIZED)    
+            return Response({'error': 'Authentication failed, Incorrect username or password'}, status=status.HTTP_401_UNAUTHORIZED)    
         
         payload = {
             'id': user.id,
@@ -42,37 +42,32 @@ class LoginView(APIView):
             'iat': datetime.datetime.utcnow()
         }
         token = jwt.encode(payload, 'blablabla', algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        response.data = {
-            'jwt': token
-        }
-        response.message = 'success'
-        response.status_code = status.HTTP_200_OK
-
-        return response
+        
+        response_data = {'data': {'jwt': token}, 'message': 'success'}
+        return Response(response_data, status=status.HTTP_200_OK)
 
 class UserView(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
 
         if not token:
-            return Response({'message': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             payload = jwt.decode(token, 'blablabla', algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            return Response({'message': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = User.objects.filter(id=payload['id']).first()
+        if user is None:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = UserSerializer(user)
-        return Response(serializer.data) 
+        return Response({'data': serializer.data})
 
 class LogoutView(APIView):
     def post(self, request):
         response = Response()
         response.delete_cookie('jwt')
-        response.data = {
-            'message': 'success'
-        }
+        response.data = {'message': 'success'}
         return response
