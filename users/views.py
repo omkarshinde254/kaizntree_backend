@@ -22,16 +22,16 @@ class RegisterView(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            return Response({'data': {serializer.data}}, status=status.HTTP_201_CREATED)
+            return Response({'data': {"message": "success"}}, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     def post(self, request):
-        email = request.data.get('email')
+        email = request.data.get('username')
         password = request.data.get('password')
 
-        user = User.objects.filter(email=email).first()
+        user = User.objects.filter(username=email).first()
 
         if user is None or not user.check_password(password):
             return Response({'error': 'Authentication failed, Incorrect username or password'}, status=status.HTTP_401_UNAUTHORIZED)    
