@@ -83,13 +83,21 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'defaultdb',
+    #     'USER': 'avnadmin',
+    #     'PASSWORD': 'AVNS_onPHbunN-gFCfleQc9d',
+    #     'HOST': 'mysql-8da58df-omkarshinde254-kaizntree.a.aivencloud.com',  # Or the IP Address where your DB is hosted
+    #     'PORT': '25209',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'defaultdb',
         'USER': 'avnadmin',
-        'PASSWORD': 'AVNS_onPHbunN-gFCfleQc9d',
-        'HOST': 'mysql-8da58df-omkarshinde254-kaizntree.a.aivencloud.com',  # Or the IP Address where your DB is hosted
-        'PORT': '25209',
+        'PASSWORD': 'AVNS_wICwuPoRUR0EVjbat_9',
+        'HOST': 'pg-25ef7ba9-omkarshinde254-kaizntree.a.aivencloud.com',
+        'PORT': '25209',  # Typically 5432 for PostgreSQL
     }
 }
 
