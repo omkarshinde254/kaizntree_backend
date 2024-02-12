@@ -9,7 +9,7 @@ class CategoryCountView(APIView):
     def get(self, request):
         unique_categories_count = Category.objects.count()
         response = Response({
-            'categories_count': unique_categories_count,
+            'data': {'categories_count': unique_categories_count},
         }, status=status.HTTP_200_OK)
         return response
 
@@ -17,7 +17,7 @@ class ItemCountView(APIView):
     def get(self, request):
         unique_items_count = Item.objects.count()
         response = Response({
-            'items_count': unique_items_count,
+            'data': {'items_count': unique_items_count},
         }, status=status.HTTP_200_OK)
         return response
 
@@ -26,8 +26,8 @@ class CategoryCreateView(CreateAPIView):
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "success"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": {"message": "success"}}, status=status.HTTP_201_CREATED)
+        return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 
 class ItemCreateView(CreateAPIView):
@@ -47,5 +47,5 @@ class ItemCreateView(CreateAPIView):
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "success"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": {"message": "success"}}, status=status.HTTP_201_CREATED)
+        return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
