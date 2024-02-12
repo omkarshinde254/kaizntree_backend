@@ -7,7 +7,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name']
 
 class ItemSerializer(serializers.ModelSerializer):
-    # id = serializers.IntegerField()
+    class Meta:
+        model = Item
+        fields = ['sku', 'name', 'tags', 'category', 'in_stock', 'available']
+
+class ItemSerializerGet(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     sku = serializers.CharField()
     name = serializers.CharField()
     tags = serializers.CharField()

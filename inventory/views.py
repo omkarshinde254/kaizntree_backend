@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from .models import Category, Item
-from .serializers import CategorySerializer, ItemSerializer
+from .serializers import CategorySerializer, ItemSerializer, ItemSerializerGet
 
 class CategoryCountView(APIView):
     def get(self, request):
@@ -59,5 +59,5 @@ class CategoryListView(APIView):
 class ItemListView(APIView):
     def get(self, request):
         items = Item.objects.all()
-        serializer = ItemSerializer(items, many=True)
+        serializer = ItemSerializerGet(items, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
