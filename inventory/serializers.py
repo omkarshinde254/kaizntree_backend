@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name']
 
 class ItemSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
+    # id = serializers.IntegerField()
     sku = serializers.CharField()
     name = serializers.CharField()
     tags = serializers.CharField()
