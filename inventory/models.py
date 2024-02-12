@@ -12,8 +12,8 @@ class Item(models.Model):
     name = models.CharField(max_length=200)
     tags = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    in_stock = models.BooleanField(default=False)
-    available = models.BooleanField(default=False)
+    in_stock = models.CharField(max_length=200)
+    available = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name

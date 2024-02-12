@@ -49,3 +49,9 @@ class ItemCreateView(CreateAPIView):
             serializer.save()
             return Response({"data": {"message": "success"}}, status=status.HTTP_201_CREATED)
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class CategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
