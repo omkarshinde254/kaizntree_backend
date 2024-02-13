@@ -41,10 +41,11 @@ class LoginView(APIView):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
             'iat': datetime.datetime.utcnow()
         }
-        token = jwt.encode(payload, 'blablabla', algorithm='HS256')
-        
+        token = jwt.encode(payload, 'blablabla', algorithm='HS256') 
         response_data = {'data': {'jwt': token}, 'message': 'success'}
-        return Response(response_data, status=status.HTTP_200_OK)
+        response = Response(response_data, status=status.HTTP_200_OK)
+        response.set_cookie(key='jwt', value=token, httponly=True)
+        return response
 
 class UserView(APIView):
     def get(self, request):
