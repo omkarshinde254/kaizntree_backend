@@ -8,30 +8,34 @@ from .serializers import CategorySerializer, ItemSerializer, ItemSerializerGet
 from rest_framework.permissions import IsAuthenticated
 import jwt
 from users.models import User
+from rest_framework.exceptions import AuthenticationFailed
 
 def verify_user(request):
-    token = request.COOKIES.get('jwt')
+    auth_header = request.headers.get('Authorization')
 
-    if not token:
-        return Response({'error': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+    if not auth_header:
+        raise AuthenticationFailed('Authorization header is missing')
+
+    parts = auth_header.split()
+    if parts[0].lower() != 'bearer' or len(parts) == 1 or len(parts) > 2:
+        raise AuthenticationFailed('Authorization header must be in the format "Bearer <JWT>"')
+
+    token = parts[1]
+
     try:
         payload = jwt.decode(token, 'blablabla', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
-        return Response({'error': 'Unauthenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+        raise AuthenticationFailed('JWT is expired')
 
     user = User.objects.filter(id=payload['id']).first()
     if user is None:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+        raise AuthenticationFailed('User not found')
+
     return True
+
 
 class CategoryCountView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-
         unique_categories_count = Category.objects.count()
         response = Response({
             'data': {'categories_count': unique_categories_count},
@@ -40,10 +44,6 @@ class CategoryCountView(APIView):
 
 class ItemCountView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-     
         unique_items_count = Item.objects.count()
         response = Response({
             'data': {'items_count': unique_items_count},
@@ -52,10 +52,6 @@ class ItemCountView(APIView):
 
 class CategoryCreateView(CreateAPIView):
     def post (self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-        
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -65,10 +61,6 @@ class CategoryCreateView(CreateAPIView):
 
 class ItemCreateView(CreateAPIView):
     def post(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-    
         category_name = request.data.get('category')
         sku = request.data.get('sku')
 
@@ -89,19 +81,12 @@ class ItemCreateView(CreateAPIView):
 
 class CategoryListView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-    
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 class ItemListView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
     
         items = Item.objects.all()
         serializer = ItemSerializerGet(items, many=True)
@@ -109,10 +94,6 @@ class ItemListView(APIView):
 
 class CategoryFilterView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-
         name = request.query_params.get('name', None)
         if name:
             categories = Category.objects.filter(name__icontains=name)
@@ -126,10 +107,6 @@ class CategoryFilterView(APIView):
 
 class ItemFilterView(APIView):
     def get(self, request):
-        verification = verify_user(request)
-        if verification != True:
-            return verification 
-
         sku = request.query_params.get('sku', None)
         name = request.query_params.get('name', None)
         tags = request.query_params.get('tags', None)
