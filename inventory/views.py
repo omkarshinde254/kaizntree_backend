@@ -9,6 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 import jwt
 from users.models import User
 from rest_framework.exceptions import AuthenticationFailed
+from django.core.cache import cache
+import json
+
 
 def verify_user(request):
     auth_header = request.headers.get('Authorization')
@@ -76,6 +79,10 @@ class ItemCreateView(CreateAPIView):
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            items = Item.objects.all()
+            serialized_data = ItemSerializerGet(items, many=True).data
+            serialized_data_json = json.dumps(serialized_data)
+            cache.set('items', serialized_data_json)
             return Response({"data": {"message": "success"}}, status=status.HTTP_201_CREATED)
         return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,8 +94,21 @@ class CategoryListView(APIView):
 
 class ItemListView(APIView):
     def get(self, request):
-    
+        cached_data = cache.get('items')
+        if cached_data:
+            cached_data_json = json.loads(cached_data)
+            serializer = ItemSerializerGet(data=cached_data_json, many=True)
+            if serializer.is_valid():
+                return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+            else:
+                # Handle the case where the cached data cannot be deserialized properly
+                return Response({'error': 'Cached data is invalid'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
         items = Item.objects.all()
+        serialized_data = ItemSerializerGet(items, many=True).data
+        serialized_data_json = json.dumps(serialized_data)
+        cache.set('items', serialized_data_json)
         serializer = ItemSerializerGet(items, many=True)
         return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 

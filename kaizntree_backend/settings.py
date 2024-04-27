@@ -104,6 +104,14 @@ DATABASES = {
 }
 
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'rediss://default:AVNS_298twkw5w7TnszeUYcB@redis-3cb49c1d-omkarshinde254-kaizntree.a.aivencloud.com:25210',
+    },
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
